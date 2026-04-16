@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { SAMI_SYSTEM_PROMPT } from './systemPrompt.js'
+import { getSamiSystemPrompt } from './systemPrompt.js'
 
 // ── Helpers ──────────────────────────────────────────────
 function escHtml(s) {
@@ -330,7 +330,7 @@ export default function App() {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newHistory, systemPrompt: SAMI_SYSTEM_PROMPT }),
+        body: JSON.stringify({ messages: newHistory, systemPrompt: getSamiSystemPrompt() }),
       })
       const data = await res.json()
       const reply = data.content || data.error || 'Erreur de réponse.'
