@@ -21,6 +21,37 @@ function Clock() {
   return <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text3)' }}>{time}</span>
 }
 
+// ── Auth ──────────────────────────────────────────────────
+const SESSION_KEY = 'sami_auth'
+const APP_PASSWORD = import.meta.env.VITE_APP_PASSWORD || 'samiOS2026'
+
+function LoginScreen({ onLogin }) {
+  const [pwd, setPwd] = useState('')
+  const [error, setError] = useState(false)
+  const inputRef = useRef(null)
+  useEffect(() => { inputRef.current?.focus() }, [])
+  function handleSubmit(e) {
+    e.preventDefault()
+    if (pwd === APP_PASSWORD) { sessionStorage.setItem(SESSION_KEY, '1'); onLogin() }
+    else { setError(true); setPwd('') }
+  }
+  return (
+    <div style={{ height:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'var(--bg)', flexDirection:'column', gap:32 }}>
+      <div style={{ textAlign:'center' }}>
+        <div style={{ fontFamily:'var(--font-head)', fontWeight:800, fontSize:36, color:'var(--teal2)' }}>SAMUEL <span style={{ color:'var(--text3)', fontWeight:400 }}>OS</span></div>
+        <div style={{ fontSize:12, color:'var(--text3)', marginTop:6, fontFamily:'var(--font-mono)' }}>SAMI v1.0 — Accès restreint</div>
+      </div>
+      <form onSubmit={handleSubmit} style={{ background:'var(--bg2)', border:`1px solid ${error?'rgba(216,90,48,0.4)':'var(--border2)'}`, borderRadius:14, padding:'28px 32px', display:'flex', flexDirection:'column', gap:16, minWidth:300 }}>
+        <div style={{ fontSize:13, color:'var(--text2)', fontFamily:'var(--font-mono)' }}>Mot de passe</div>
+        <input ref={inputRef} type="password" value={pwd} onChange={e=>{setPwd(e.target.value);setError(false)}} placeholder="••••••••••" style={{ background:'var(--bg3)', border:`1px solid ${error?'var(--coral)':'var(--border2)'}`, borderRadius:8, padding:'10px 14px', fontFamily:'var(--font-mono)', fontSize:16, color:'var(--text)', outline:'none', letterSpacing:4 }} />
+        {error && <div style={{ fontSize:11, color:'var(--coral)', fontFamily:'var(--font-mono)' }}>Mot de passe incorrect</div>}
+        <button type="submit" style={{ background:'var(--teal)', color:'#fff', border:'none', borderRadius:8, padding:'10px 0', fontFamily:'var(--font-mono)', fontSize:13, cursor:'pointer' }}>Accéder à SAMI →</button>
+      </form>
+      <div style={{ fontSize:10, color:'var(--text3)', fontFamily:'var(--font-mono)' }}>Usage exclusif — Samuel Degrève</div>
+    </div>
+  )
+}
+
 // ── Styles inline ─────────────────────────────────────────
 const S = {
   app: {
@@ -269,7 +300,7 @@ function now() {
   return new Date().toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit' })
 }
 
-export default function App() {
+function Dashboard() {
   const [activeNav, setActiveNav] = useState('chat')
   const [messages, setMessages] = useState([
     {
@@ -433,4 +464,10 @@ export default function App() {
       </main>
     </div>
   )
+}
+
+export default function App() {
+  const [authed, setAuthed] = useState(() => sessionStorage.getItem(SESSION_KEY) === '1')
+  if (!authed) return <LoginScreen onLogin={() => setAuthed(true)} />
+  return <Dashboard />
 }
